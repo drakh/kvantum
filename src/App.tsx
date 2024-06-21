@@ -65,19 +65,19 @@ const App: FC = () => {
         <hemisphereLight intensity={1.5} groundColor="white" />
         <ARAnchor target={0} onAnchorFound={onAnchorFound}>
           <mesh>
-            <planeGeometry />
+            <planeGeometry args={[2.1, 2.97]} />
             <meshStandardMaterial color="orange" />
           </mesh>
+          <mesh
+            position={[0, 0, 0]}
+            rotation={[degToRad(20), degToRad(90), 0]}
+            scale={[3, 3, 3]}
+          >
+            <Snowman />
+            <Trees />
+            <Hill />
+          </mesh>
         </ARAnchor>
-        <mesh
-          position={[0, 0, 0]}
-          rotation={[degToRad(20), degToRad(90), 0]}
-          scale={[3, 3, 3]}
-        >
-          {/*<Snowman />*/}
-          {/*<Trees />*/}
-          {/*<Hill />*/}
-        </mesh>
       </ARView>
     </main>
   );
