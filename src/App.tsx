@@ -51,7 +51,6 @@ const Snowman: FC = () => {
 const App: FC = () => {
   return (
     <main>
-      <header>Hello world</header>
       <ARView>
         <ambientLight intensity={1.5} />
         <hemisphereLight intensity={1.5} groundColor="white" />
