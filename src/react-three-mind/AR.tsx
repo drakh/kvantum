@@ -270,15 +270,10 @@ const ARAnchor: FC<AnchorProps> = ({
           const position = new Vector3();
           const scale = new Vector3();
           const quaternion = new Quaternion();
-          // const position: Vector3 = [0, 0, 0];
-          // const quaternion:Quaternion = {};
-          // const scale:Vector3 = [];
-          matrix
-            .decompose(position, quaternion, scale)
-            .compose(new Vector3(-1 * position.x, position.y, position.z), new Quaternion(quaternion.x, -1 * quaternion.y, -1 * quaternion.z, quaternion.w), scale);
+          const updated=matrix.clone().decompose(position, quaternion, scale).clone().compose(new Vector3(-1 * position.x, position.y, position.z), new Quaternion(quaternion.x, -1 * quaternion.y, -1 * quaternion.z, quaternion.w), scale);
           console.info({ ...quaternion });
 
-          groupRef.current.matrix = matrix;
+          groupRef.current.matrix = updated;
         } else {
           if (groupRef.current?.visible !== false && onAnchorLost) onAnchorLost();
           groupRef.current.visible = false;

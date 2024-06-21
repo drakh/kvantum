@@ -70,7 +70,7 @@ const App: FC = () => {
           </mesh>
           <mesh
             position={[0, 0, 0]}
-            rotation={[degToRad(20), degToRad(90), 0]}
+            rotation={[degToRad(0), degToRad(90), 0]}
             scale={[3, 3, 3]}
           >
             <Snowman />
