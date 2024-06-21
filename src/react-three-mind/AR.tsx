@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   type FC,
   Suspense,
@@ -22,7 +23,8 @@ import {
 } from 'three';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { Html } from '@react-three/drei';
-import ImageTargetController from 'mind-ar-ts/src/image-target/controller';
+// @ts-ignore: no types
+import { Controller as ImageTargetController } from "mind-ar/src/image-target/controller";
 import type { IOnUpdate } from 'mind-ar-ts/src/image-target/utils/types/controller';
 import Webcam from 'react-webcam';
 import { useWindowSize } from './hooks';
@@ -31,13 +33,13 @@ const modeAtom = atom(false);
 const anchorsAtom = atom<{ [key: number]: Matrix4Tuple | null }>({});
 const flipUserCameraAtom = atom(true);
 
-type ARRef = {
+export type ARRef = {
   startTracking: () => void;
   stopTracking: () => void;
   switchCamera: () => void;
 };
 
-type ARProps = {
+export type ARProps = {
   autoplay?: boolean;
   imageTarget?: string;
   maxTrack?: number;
@@ -125,6 +127,8 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
             warmupTolerance,
             onUpdate,
           });
+
+          console.info(controller);
 
           const { dimensions: imageTargetDimensions } = await controller.addImageTargets(
             imageTarget,
@@ -245,7 +249,6 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
             videoConstraints={{
               facingMode: isWebcamFacingUser ? 'user' : 'environment',
             }}
-            // style={feedStyle}
             mirrored={isWebcamFacingUser && flipUserCamera}
           />
         </Html>

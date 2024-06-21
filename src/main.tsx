@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import App from './App';
+import App from './ZappApp.tsx';
 import { store } from './store';
 import './styles/main.less';
 
