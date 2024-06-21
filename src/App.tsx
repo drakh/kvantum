@@ -1,4 +1,4 @@
-import { type FC, useEffect } from 'react';
+import { type FC, useEffect, useCallback } from 'react';
 import {
   useAnimations,
   useGLTF,
@@ -11,7 +11,7 @@ import { MathUtils } from 'three';
 
 const { degToRad } = MathUtils;
 
-const Hill: FC = () => {
+export const Hill: FC = () => {
   const { scene, nodes } = useGLTF('assets/models/hill.gltf');
   for (const node in nodes) {
     nodes[node].receiveShadow = true;
@@ -19,7 +19,7 @@ const Hill: FC = () => {
   }
   return <primitive object={scene} />;
 };
-const Trees: FC = () => {
+export const Trees: FC = () => {
   const { scene, nodes } = useGLTF('assets/models/trees.gltf');
   for (const node in nodes) {
     nodes[node].receiveShadow = true;
@@ -28,7 +28,7 @@ const Trees: FC = () => {
   return <primitive object={scene} />;
 };
 
-const Snowman: FC = () => {
+export const Snowman: FC = () => {
   const { scene, animations, nodes } = useGLTF('assets/models/snehuliak.gltf');
   for (const node in nodes) {
     nodes[node].receiveShadow = true;
@@ -48,21 +48,41 @@ const Snowman: FC = () => {
   return <primitive object={scene} />;
 };
 
+const Plane: React.FC = () => {
+  return (
+    <mesh>
+      <boxGeometry args={[1, 1, 0.1]} />
+      <meshStandardMaterial color="orange" />
+    </mesh>
+  );
+};
+
 const App: FC = () => {
+  const onAnchorFound = useCallback(() => {
+    console.info('have anchor');
+  }, []);
+
   return (
     <main>
-      <ARView>
+      <ARView
+        imageTarget={`assets/kvantum-qr.mind`}
+        onReady={() => {
+          console.info('ready');
+        }}
+      >
         <ambientLight intensity={1.5} />
         <hemisphereLight intensity={1.5} groundColor="white" />
-        <ARAnchor></ARAnchor>
+        <ARAnchor target={0} onAnchorFound={onAnchorFound}>
+          <Plane />
+        </ARAnchor>
         <mesh
           position={[0, 0, 0]}
           rotation={[degToRad(20), degToRad(90), 0]}
           scale={[3, 3, 3]}
         >
-          <Snowman />
-          <Trees />
-          <Hill />
+          {/*<Snowman />*/}
+          {/*<Trees />*/}
+          {/*<Hill />*/}
         </mesh>
       </ARView>
     </main>

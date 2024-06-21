@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   type FC,
   Suspense,
@@ -22,10 +23,10 @@ import {
 } from 'three';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { Html } from '@react-three/drei';
-import ImageTargetController from 'mind-ar-ts/src/image-target/controller';
 import type { IOnUpdate } from 'mind-ar-ts/src/image-target/utils/types/controller';
 import Webcam from 'react-webcam';
 import { useWindowSize } from './hooks';
+import 'mind-ar-ts';
 
 const modeAtom = atom(false);
 const anchorsAtom = atom<{ [key: number]: Matrix4Tuple | null }>({});
@@ -63,7 +64,7 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
       filterBeta = null,
       warmupTolerance = null,
       missTolerance = null,
-      flipUserCamera = true,
+      flipUserCamera = false,
       onReady = null,
       onError = null,
     },
@@ -73,7 +74,8 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     const processingVideo = useRef(false);
     const webcamRef = useRef<Webcam>(null);
     const [ready, setReady] = useState(false);
-    const controllerRef = useRef<ImageTargetController>();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const controllerRef = useRef<any>();
     const { camera } = useThree();
     const setMode = useSetAtom(modeAtom);
     const setAnchors = useSetAtom(anchorsAtom);
@@ -97,25 +99,27 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     }, [webcamRef]);
 
     const startTracking = useCallback(async () => {
+      console.info('ready', ready);
       if (ready) {
         if (imageTarget && webcamRef.current?.video) {
           processingVideo.current = true;
           const onUpdate = ({ type, targetIndex, worldMatrix }: IOnUpdate) => {
-            if (type === 'updateMatrix' && targetIndex && worldMatrix) {
+            console.info('onUpdate', { type, targetIndex, worldMatrix });
+            if (type === 'updateMatrix' && targetIndex!==undefined && worldMatrix!==undefined) {
               setAnchors((anchors) => ({
                 ...anchors,
-                [targetIndex]:
+                [targetIndex as number]:
                   worldMatrix !== null
                     ? new Matrix4()
-                        .fromArray([...worldMatrix])
-                        .multiply(postMatrices[targetIndex])
-                        .toArray()
+                      .fromArray([...worldMatrix])
+                      .multiply(postMatrices[targetIndex as number])
+                      .toArray()
                     : null,
               }));
             }
           };
 
-          const controller = new ImageTargetController({
+          const controller = new window.MINDAR.IMAGE.Controller({
             inputWidth: webcamRef.current?.video?.videoWidth,
             inputHeight: webcamRef.current?.video?.videoHeight,
             maxTrack,
@@ -129,6 +133,8 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
           const { dimensions: imageTargetDimensions } = await controller.addImageTargets(
             imageTarget,
           );
+
+          console.info({ imageTargetDimensions });
 
           const postMatrices = imageTargetDimensions.map(([markerWidth, markerHeight]) =>
             new Matrix4().compose(
@@ -175,6 +181,7 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     const stopTracking = useCallback(() => {
       if (controllerRef.current) {
         processingVideo.current = false;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
         controllerRef.current.stopProcessVideo();
       }
     }, [controllerRef]);
@@ -185,6 +192,7 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
         startTracking,
         stopTracking,
         switchCamera: async () => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const wasTracking = controllerRef.current && processingVideo.current;
           wasTracking && stopTracking();
           setReady(false);
@@ -197,31 +205,14 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
 
     const startTrackingHandler = useCallback(async () => {
       if (ready && autoplay) {
+        console.info('start tracking');
         await startTracking();
       }
     }, [autoplay, ready, startTracking]);
 
     useEffect(() => {
-      startTrackingHandler().catch((e) => console.error(e));
+      void startTrackingHandler();
     }, [startTrackingHandler]);
-
-    // const feedStyle = useMemo(
-    //   () => ({
-    //     width: 'auto',
-    //     maxWidth: 'none',
-    //     height: 'inherit',
-    //     marginLeft: `${
-    //       width &&
-    //       webcamRef.current &&
-    //       webcamRef.current.video?.clientWidth &&
-    //       webcamRef.current.video?.clientWidth > 0 &&
-    //       ready
-    //         ? width - webcamRef.current.video.clientWidth / 2
-    //         : 0
-    //     }px`,
-    //   }),
-    //   [width, ready, webcamRef],
-    // );
 
     return (
       <>
@@ -262,12 +253,12 @@ type AnchorProps = {
 } & JSX.IntrinsicElements['group'];
 
 const ARAnchor: FC<AnchorProps> = ({
-  children,
-  target = 0,
-  onAnchorFound,
-  onAnchorLost,
-  ...rest
-}) => {
+                                     children,
+                                     target = 0,
+                                     onAnchorFound,
+                                     onAnchorLost,
+                                     ...rest
+                                   }) => {
   const groupRef = useRef<Group<Object3DEventMap> | undefined>();
   const anchor = useAtomValue(anchorsAtom);
   const mode = useAtomValue(modeAtom);
