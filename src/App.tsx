@@ -2,7 +2,7 @@ import { type FC, useEffect } from 'react';
 import {
   useGLTF,
   useAnimations,
-  /*Mask,*/ useMask,
+  /*Mask, useMask,*/
   Environment,
   MeshPortalMaterial,
 } from '@react-three/drei';
@@ -10,31 +10,31 @@ import { ARView, ARAnchor } from './react-three-mind/AR';
 // import { LoopOnce } from 'three';
 
 const Model: FC = () => {
-  const { scene, animations } = useGLTF('cube.gltf');
+  const { scene, animations, nodes } = useGLTF('cube.gltf');
   const { clips, mixer } = useAnimations(animations, scene);
 
-  console.info({ scene });
+  for (const node in nodes) {
+    nodes[node].receiveShadow = true;
+    nodes[node].castShadow = true;
+  }
+
+  console.info({ scene, nodes });
 
   useEffect(() => {
-    scene.children.forEach((child) => {
-      child.castShadow = true;
-      child.receiveShadow = true;
-    });
-    console.info({ clips });
     clips.forEach((clip) => {
       mixer.clipAction(clip).play();
     });
     // mixer.clipAction(clip).loop = LoopOnce;
     // clip.duration;
     // mixer.clipAction(clip).halt(clip.duration / 1.2);
-  }, [clips, mixer]);
+  }, [clips, mixer, nodes]);
 
   scene.castShadow = true;
   scene.receiveShadow = true;
 
-  const stencil = useMask(1);
-
-  console.info({ stencil });
+  // const stencil = useMask(1);
+  //
+  // console.info({ stencil });
 
   return (
     <>
@@ -44,8 +44,8 @@ const Model: FC = () => {
       <mesh position={[0, 0, 0]}>
         <planeGeometry args={[10, 10]} />
         <MeshPortalMaterial>
-          <ambientLight intensity={2} />
-          <hemisphereLight intensity={1} groundColor="red" />
+          <ambientLight intensity={0.5} />
+          <hemisphereLight intensity={0.5} groundColor="white" />
           <Environment preset="city" />
           <mesh castShadow receiveShadow>
             <primitive object={scene} />
