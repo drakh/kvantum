@@ -5,7 +5,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  // useMemo,
   useRef,
   useState,
   type Ref,
@@ -92,6 +91,11 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
 
     const handleStream = useCallback(() => {
       if (webcamRef.current?.video) {
+        console.info(
+          webcamRef.current.stream?.getVideoTracks()[0].getSettings(),
+          webcamRef.current.stream?.getVideoTracks()[0].getCapabilities(),
+          webcamRef.current.stream?.getVideoTracks()[0].getConstraints(),
+        );
         webcamRef.current.video.addEventListener('loadedmetadata', () => setReady(true));
       }
     }, [webcamRef]);
@@ -202,7 +206,7 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     }, [autoplay, ready, startTracking]);
 
     useEffect(() => {
-      startTrackingHandler().catch((e) => console.error(e));
+      void startTrackingHandler();
     }, [startTrackingHandler]);
 
     // const feedStyle = useMemo(
@@ -222,6 +226,22 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     //   }),
     //   [width, ready, webcamRef],
     // );
+
+    // const [deviceId, setDeviceId] = useState({});
+    // const [devices, setDevices] = useState([]);
+    //
+    const handleDevices = useCallback(async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        console.info(devices);
+      } catch (e) {
+        console.error(e);
+      }
+    }, []);
+
+    useEffect(() => {
+      void handleDevices();
+    }, [handleDevices]);
 
     return (
       <>

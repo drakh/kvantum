@@ -1,6 +1,4 @@
 import { type FC } from 'react';
-
-// @ts-ignore: no typings
 import { ARView, ARAnchor } from './react-three-mind/AR';
 
 const App: FC = () => {
@@ -12,6 +10,10 @@ const App: FC = () => {
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} />
         <ARAnchor></ARAnchor>
+        <mesh scale={1.5} position={[-1.2, 0, 0]}>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color={'orange'} />
+        </mesh>
       </ARView>
     </main>
   );
