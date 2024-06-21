@@ -48,15 +48,6 @@ export const Snowman: FC = () => {
   return <primitive object={scene} />;
 };
 
-const Plane: React.FC = () => {
-  return (
-    <mesh>
-      <boxGeometry args={[1, 1, 0.1]} />
-      <meshStandardMaterial color="orange" />
-    </mesh>
-  );
-};
-
 const App: FC = () => {
   const onAnchorFound = useCallback(() => {
     console.info('have anchor');
@@ -73,7 +64,10 @@ const App: FC = () => {
         <ambientLight intensity={1.5} />
         <hemisphereLight intensity={1.5} groundColor="white" />
         <ARAnchor target={0} onAnchorFound={onAnchorFound}>
-          <Plane />
+          <mesh>
+            <planeGeometry />
+            <meshStandardMaterial color="orange" />
+          </mesh>
         </ARAnchor>
         <mesh
           position={[0, 0, 0]}

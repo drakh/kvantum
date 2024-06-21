@@ -6,7 +6,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  // useMemo,
   useRef,
   useState,
   type Ref,
@@ -99,13 +98,11 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
     }, [webcamRef]);
 
     const startTracking = useCallback(async () => {
-      console.info('ready', ready);
       if (ready) {
         if (imageTarget && webcamRef.current?.video) {
           processingVideo.current = true;
           const onUpdate = ({ type, targetIndex, worldMatrix }: IOnUpdate) => {
-            console.info('onUpdate', { type, targetIndex, worldMatrix });
-            if (type === 'updateMatrix' && targetIndex!==undefined && worldMatrix!==undefined) {
+            if (type === 'updateMatrix' && targetIndex !== undefined && worldMatrix !== undefined) {
               setAnchors((anchors) => ({
                 ...anchors,
                 [targetIndex as number]:
@@ -133,8 +130,6 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
           const { dimensions: imageTargetDimensions } = await controller.addImageTargets(
             imageTarget,
           );
-
-          console.info({ imageTargetDimensions });
 
           const postMatrices = imageTargetDimensions.map(([markerWidth, markerHeight]) =>
             new Matrix4().compose(
@@ -205,7 +200,6 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
 
     const startTrackingHandler = useCallback(async () => {
       if (ready && autoplay) {
-        console.info('start tracking');
         await startTracking();
       }
     }, [autoplay, ready, startTracking]);
@@ -236,7 +230,6 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
             videoConstraints={{
               facingMode: isWebcamFacingUser ? 'user' : 'environment',
             }}
-            // style={feedStyle}
             mirrored={isWebcamFacingUser && flipUserCamera}
           />
         </Html>
@@ -270,9 +263,22 @@ const ARAnchor: FC<AnchorProps> = ({
         if (anchor[target]) {
           if (groupRef.current?.visible !== true && onAnchorFound) onAnchorFound();
           groupRef.current.visible = true;
-          groupRef.current.matrix = new Matrix4().fromArray(
+
+          const matrix = new Matrix4().fromArray(
             anchor[target] as Matrix4Tuple,
           );
+          const position = new Vector3();
+          const scale = new Vector3();
+          const quaternion = new Quaternion();
+          // const position: Vector3 = [0, 0, 0];
+          // const quaternion:Quaternion = {};
+          // const scale:Vector3 = [];
+          matrix
+            .decompose(position, quaternion, scale)
+            .compose(new Vector3(-1 * position.x, position.y, position.z), new Quaternion(quaternion.x, -1 * quaternion.y, -1 * quaternion.z, quaternion.w), scale);
+          console.info({ ...quaternion });
+
+          groupRef.current.matrix = matrix;
         } else {
           if (groupRef.current?.visible !== false && onAnchorLost) onAnchorLost();
           groupRef.current.visible = false;
