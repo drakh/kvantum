@@ -1,24 +1,40 @@
-import { type FC, useEffect } from 'react';
+import { type FC, useEffect, useCallback } from 'react';
 import {
-  useGLTF,
   useAnimations,
+  useGLTF,
   /*Mask, useMask,*/
-  Environment,
-  MeshPortalMaterial,
 } from '@react-three/drei';
 import { ARView, ARAnchor } from './react-three-mind/AR';
 // import { LoopOnce } from 'three';
+// import { TestScene } from './TestScene';
+import { MathUtils } from 'three';
 
-const Model: FC = () => {
-  const { scene, animations, nodes } = useGLTF('cube.gltf');
-  const { clips, mixer } = useAnimations(animations, scene);
+const { degToRad } = MathUtils;
 
+export const Hill: FC = () => {
+  const { scene, nodes } = useGLTF('assets/models/hill.gltf');
   for (const node in nodes) {
     nodes[node].receiveShadow = true;
     nodes[node].castShadow = true;
   }
+  return <primitive object={scene} />;
+};
+export const Trees: FC = () => {
+  const { scene, nodes } = useGLTF('assets/models/trees.gltf');
+  for (const node in nodes) {
+    nodes[node].receiveShadow = true;
+    nodes[node].castShadow = true;
+  }
+  return <primitive object={scene} />;
+};
 
-  console.info({ scene, nodes });
+export const Snowman: FC = () => {
+  const { scene, animations, nodes } = useGLTF('assets/models/snehuliak.gltf');
+  for (const node in nodes) {
+    nodes[node].receiveShadow = true;
+    nodes[node].castShadow = true;
+  }
+  const { clips, mixer } = useAnimations(animations, scene);
 
   useEffect(() => {
     clips.forEach((clip) => {
@@ -29,56 +45,45 @@ const Model: FC = () => {
     // mixer.clipAction(clip).halt(clip.duration / 1.2);
   }, [clips, mixer, nodes]);
 
-  scene.castShadow = true;
-  scene.receiveShadow = true;
+  return <primitive object={scene} />;
+};
 
-  // const stencil = useMask(1);
-  //
-  // console.info({ stencil });
-
+const Plane: React.FC = () => {
   return (
-    <>
-      <mesh>
-        <primitive object={scene} />
-      </mesh>
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[10, 10]} />
-        <MeshPortalMaterial>
-          <ambientLight intensity={0.5} />
-          <hemisphereLight intensity={0.5} groundColor="white" />
-          <Environment preset="city" />
-          <mesh castShadow receiveShadow>
-            <primitive object={scene} />
-          </mesh>
-        </MeshPortalMaterial>
-      </mesh>
-      {/*<Mask id={1} position={[0, 0, 0.95]}>*/}
-      {/*  <planeGeometry />*/}
-      {/*</Mask>*/}
-      {/*  <mesh>*/}
-      {/*    <planeGeometry />*/}
-      {/*  </mesh>*/}
-
-      {/*<Mask id={1}>*/}
-      {/*  <planeGeometry />*/}
-      {/*  <meshBasicMaterial />*/}
-      {/*</Mask>*/}
-      {/*<mesh>*/}
-      {/*  <torusKnotGeometry />*/}
-      {/*  <meshStandardMaterial {...stencil} />*/}
-      {/*  <primitive object={scene} />*/}
-      {/*</mesh>*/}
-    </>
+    <mesh>
+      <boxGeometry args={[1, 1, 0.1]} />
+      <meshStandardMaterial color="orange" />
+    </mesh>
   );
 };
 
 const App: FC = () => {
+  const onAnchorFound = useCallback(() => {
+    console.info('have anchor');
+  }, []);
+
   return (
     <main>
-      <header>Hello world</header>
-      <ARView>
-        <ARAnchor></ARAnchor>
-        <Model />
+      <ARView
+        imageTarget={`assets/kvantum-qr.mind`}
+        onReady={() => {
+          console.info('ready');
+        }}
+      >
+        <ambientLight intensity={1.5} />
+        <hemisphereLight intensity={1.5} groundColor="white" />
+        <ARAnchor target={0} onAnchorFound={onAnchorFound}>
+          <Plane />
+        </ARAnchor>
+        <mesh
+          position={[0, 0, 0]}
+          rotation={[degToRad(20), degToRad(90), 0]}
+          scale={[3, 3, 3]}
+        >
+          {/*<Snowman />*/}
+          {/*<Trees />*/}
+          {/*<Hill />*/}
+        </mesh>
       </ARView>
     </main>
   );

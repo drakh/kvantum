@@ -10,4 +10,8 @@ export default defineConfig({
   assetsInclude: ['**/*.md'],
   plugins: [react(), eslint({ fix: true })],
   base: '',
+  server: {
+    port: 1337,
+    host: '0.0.0.0',
+  },
 });
