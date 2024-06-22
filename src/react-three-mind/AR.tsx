@@ -271,7 +271,6 @@ const ARAnchor: FC<AnchorProps> = ({
           const scale = new Vector3();
           const quaternion = new Quaternion();
           const updated=matrix.clone().decompose(position, quaternion, scale).clone().compose(new Vector3(-1 * position.x, position.y, position.z), new Quaternion(quaternion.x, -1 * quaternion.y, -1 * quaternion.z, quaternion.w), scale);
-          console.info({ ...quaternion });
 
           groupRef.current.matrix = updated;
         } else {
