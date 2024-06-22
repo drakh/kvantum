@@ -146,8 +146,11 @@ const ARProvider = forwardRef<ARRef, ARProviderProps>(
 
           (camera as PerspectiveCamera).fov =
             (2 * Math.atan(1 / ARprojectionMatrix[5]) * 180) / Math.PI;
-          camera.near = ARprojectionMatrix[14] / (ARprojectionMatrix[10] - 1.0);
-          camera.far = ARprojectionMatrix[14] / (ARprojectionMatrix[10] + 1.0);
+          // const near=ARprojectionMatrix[14] / (ARprojectionMatrix[10] - 1.0)
+          // const far=ARprojectionMatrix[14] / (ARprojectionMatrix[10] + 1.0);
+          // console.info(camera.near,near, camera.far, far);
+          // camera.near = ;
+          camera.far = 1000000;
           camera.updateProjectionMatrix();
           try {
             controller.dummyRun(webcamRef.current.video);

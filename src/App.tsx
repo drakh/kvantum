@@ -88,11 +88,8 @@ const App: FC = () => {
         >
           <ARAnchor target={0} onAnchorFound={onAnchorFound} onAnchorLost={onAnchorLost}>
             {shouldCount ? (
-              <>
-                <ambientLight intensity={0.5} />
-                <hemisphereLight intensity={0.5} groundColor="white" />
-                <planeGeometry args={[2.1, 2.97]} />
-                <mesh>
+              <mesh>
+                <mesh position={[0, 0, -2]}>
                   <planeGeometry args={[2.1, 2.97]} />
                   <MeshPortalMaterial>
                     <ambientLight intensity={0.5} />
@@ -108,7 +105,7 @@ const App: FC = () => {
                     </mesh>
                   </MeshPortalMaterial>
                 </mesh>
-              </>
+              </mesh>
             ) : null}
           </ARAnchor>
         </ARView>
