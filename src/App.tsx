@@ -72,8 +72,10 @@ const App: FC = () => {
   return (
     <main>
       <header>
-        <strong>{YEARS[currentIndex]}</strong>: počet dní{' '}
-        <strong>{DAYS[currentIndex]}</strong> (možné maximum {MAX_DAYS})
+        <a href="https://www.minzp.sk/iep/publikacie/komentare/lyzovacka-na-blate.html">
+          <strong>{YEARS[currentIndex]}</strong>: počet dní{' '}
+          <strong>{DAYS[currentIndex]}</strong> (možné maximum {MAX_DAYS})
+        </a>
       </header>
       <section>
         <ARView

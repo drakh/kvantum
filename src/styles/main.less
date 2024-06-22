@@ -37,9 +37,15 @@ main {
   height: 100vh;
 
   header {
+    position: relative;
+    z-index: 5;
     padding: 1rem;
     background-color: rgb(30, 5, 10);
     font-size: 1rem;
+
+    a {
+      color: #FFF;
+    }
 
     strong {
       font-weight: 800;
@@ -48,6 +54,7 @@ main {
   }
 
   section {
+    z-index: 4;
     position: absolute;
     left: 0;
     top: 0;
