@@ -76,12 +76,20 @@ const App: FC = () => {
         <strong>{DAYS[currentIndex]}</strong> (možné maximum {MAX_DAYS})
       </header>
       <section>
-        <ARView imageTarget={`assets/kvantum-qr.mind`}>
+        <ARView
+          imageTarget={`assets/kvantum-qr.mind`}
+          maxTrack={1} // Maximum number of targets tracked simultaneously
+          filterMinCF={0.01} // Cutoff Frequency, decrease to reduce jittering
+          filterBeta={1000} // Speed Coefficient, increase to reduce delay
+          warmupTolerance={10} // Number of continuous frames required for a target being detected to be marked as found
+          missTolerance={10}
+        >
           <ARAnchor target={0} onAnchorFound={onAnchorFound} onAnchorLost={onAnchorLost}>
             {shouldCount ? (
               <>
                 <ambientLight intensity={0.5} />
                 <hemisphereLight intensity={0.5} groundColor="white" />
+                <planeGeometry args={[2.1, 2.97]} />
                 <mesh>
                   <planeGeometry args={[2.1, 2.97]} />
                   <MeshPortalMaterial>
@@ -89,8 +97,8 @@ const App: FC = () => {
                     <hemisphereLight intensity={0.5} groundColor="white" />
                     <mesh
                       position={[0, 0, 0]}
-                      rotation={[degToRad(10), degToRad(90), 0]}
-                      scale={[3, 3, 3]}
+                      rotation={[degToRad(5), degToRad(90), 0]}
+                      scale={[1, 1, 1]}
                     >
                       <Snowman currentDay={currentIndex} />
                       <Trees />
