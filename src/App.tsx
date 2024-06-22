@@ -1,15 +1,12 @@
-import { type FC, useEffect, useCallback } from 'react';
-import {
-  useAnimations,
-  useGLTF,
-  /*Mask, useMask,*/
-} from '@react-three/drei';
+import { type FC, useEffect, useCallback, useState } from 'react';
+import { useAnimations, useGLTF, MeshPortalMaterial } from '@react-three/drei';
 import { ARView, ARAnchor } from './react-three-mind/AR';
-// import { LoopOnce } from 'three';
-// import { TestScene } from './TestScene';
 import { MathUtils } from 'three';
+import { YEARS, DAYS, MAX_DAYS } from './data.ts';
 
 const { degToRad } = MathUtils;
+
+const DURATION = 4.58;
 
 export const Hill: FC = () => {
   const { scene, nodes } = useGLTF('assets/models/hill.gltf');
@@ -28,57 +25,84 @@ export const Trees: FC = () => {
   return <primitive object={scene} />;
 };
 
-export const Snowman: FC = () => {
+export const Snowman: FC<{ currentDay: number }> = ({ currentDay }) => {
   const { scene, animations, nodes } = useGLTF('assets/models/snehuliak.gltf');
   for (const node in nodes) {
     nodes[node].receiveShadow = true;
     nodes[node].castShadow = true;
   }
   const { clips, mixer } = useAnimations(animations, scene);
+  const [clip] = clips;
 
   useEffect(() => {
-    clips.forEach((clip) => {
-      mixer.clipAction(clip).play();
-    });
-    // mixer.clipAction(clip).loop = LoopOnce;
-    // clip.duration;
-    // mixer.clipAction(clip).halt(clip.duration / 1.2);
-  }, [clips, mixer, nodes]);
+    mixer.clipAction(clip).paused = false;
+    mixer.clipAction(clip).reset().setDuration(DURATION).startAt(0).play();
+    const stopAfter = ((DAYS[currentDay] * (MAX_DAYS / 100)) / 100) * DURATION;
+    // console.info(stopAfter);
+    setTimeout(() => {
+      mixer.clipAction(clip).paused = true;
+    }, stopAfter * 1000);
+  }, [clip, mixer, currentDay]);
 
   return <primitive object={scene} />;
 };
 
 const App: FC = () => {
+  const [currentIndex, setIndex] = useState(0);
+  const [shouldCount, setShouldCount] = useState(false);
+
   const onAnchorFound = useCallback(() => {
-    console.info('have anchor');
+    setShouldCount(true);
   }, []);
+
+  const onAnchorLost = useCallback(() => {
+    setShouldCount(false);
+  }, []);
+
+  useEffect(() => {
+    if (shouldCount) {
+      setTimeout(() => {
+        if (currentIndex < DAYS.length - 1) {
+          setIndex(currentIndex + 1);
+        }
+      }, DURATION * 1000);
+    }
+  }, [currentIndex, shouldCount]);
 
   return (
     <main>
-      <ARView
-        imageTarget={`assets/kvantum-qr.mind`}
-        onReady={() => {
-          console.info('ready');
-        }}
-      >
-        <ambientLight intensity={1.5} />
-        <hemisphereLight intensity={1.5} groundColor="white" />
-        <ARAnchor target={0} onAnchorFound={onAnchorFound}>
-          <mesh>
-            <planeGeometry args={[2.1, 2.97]} />
-            <meshStandardMaterial color="orange" />
-          </mesh>
-          <mesh
-            position={[0, 0, 0]}
-            rotation={[degToRad(0), degToRad(90), 0]}
-            scale={[3, 3, 3]}
-          >
-            <Snowman />
-            <Trees />
-            <Hill />
-          </mesh>
-        </ARAnchor>
-      </ARView>
+      <header>
+        <strong>{YEARS[currentIndex]}</strong>: počet dní{' '}
+        <strong>{DAYS[currentIndex]}</strong> (možné maximum {MAX_DAYS})
+      </header>
+      <section>
+        <ARView imageTarget={`assets/kvantum-qr.mind`}>
+          <ARAnchor target={0} onAnchorFound={onAnchorFound} onAnchorLost={onAnchorLost}>
+            {shouldCount ? (
+              <>
+                <ambientLight intensity={0.5} />
+                <hemisphereLight intensity={0.5} groundColor="white" />
+                <mesh>
+                  <planeGeometry args={[2.1, 2.97]} />
+                  <MeshPortalMaterial>
+                    <ambientLight intensity={0.5} />
+                    <hemisphereLight intensity={0.5} groundColor="white" />
+                    <mesh
+                      position={[0, 0, 0]}
+                      rotation={[degToRad(10), degToRad(90), 0]}
+                      scale={[3, 3, 3]}
+                    >
+                      <Snowman currentDay={currentIndex} />
+                      <Trees />
+                      <Hill />
+                    </mesh>
+                  </MeshPortalMaterial>
+                </mesh>
+              </>
+            ) : null}
+          </ARAnchor>
+        </ARView>
+      </section>
     </main>
   );
 };
